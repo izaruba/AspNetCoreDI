@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+</head>
+<body>
+
+First call - no "Use-local" header: @Model <br/><br />
+
+Second call - with "Use-local" header: <span id="response"></span>
+
+<script>
+    $(function() {
+        $.ajax({
+            type: "GET",
+            url: "home/index",
+            beforeSend: function (request) {
+                request.setRequestHeader("Use-local", "true");
+            },
+            data: { useLocal: true },
+            success: function (response) {
+                $("#response").text(response);
+            }
+        });
+    });
+</script>
+</body>
+</html>

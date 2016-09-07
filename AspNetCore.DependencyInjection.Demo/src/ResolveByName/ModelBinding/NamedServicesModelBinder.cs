@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using ResolveByName.Extensions;
 using System.Linq;
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace ResolveByName.ModelBinding
@@ -12,21 +13,25 @@ namespace ResolveByName.ModelBinding
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
-            if (bindingContext == null)
-                throw new ArgumentNullException(nameof(bindingContext));
+            return Task.Run(() =>
+            {
+                if (bindingContext == null)
+                    throw new ArgumentNullException(nameof(bindingContext));
 
-            var serviceName = GetServiceName(bindingContext);
+                var serviceName = GetServiceName(bindingContext);
 
-            if (serviceName == null) return Task.FromResult(ModelBindingResult.Failed());
+                if (serviceName == null)
+                    return Task.FromResult(ModelBindingResult.Failed());
 
-            var serviceProvider = bindingContext.HttpContext.RequestServices;
-            var model = serviceProvider.GetService(bindingContext.ModelType, serviceName);
+                var serviceProvider = bindingContext.HttpContext.RequestServices;
+                var model = serviceProvider.GetService(bindingContext.ModelType, serviceName);
 
-            bindingContext.Model = model;
-            bindingContext.ValidationState[model] = new ValidationStateEntry { SuppressValidation = true };
-            bindingContext.Result = ModelBindingResult.Success(model);
+                bindingContext.Model = model;
+                bindingContext.ValidationState[model] = new ValidationStateEntry {SuppressValidation = true};
+                bindingContext.Result = ModelBindingResult.Success(model);
 
-            return Task.CompletedTask;
+                return Task.CompletedTask;
+            });
         }
 
         private static string GetServiceName(ModelBindingContext bindingContext)

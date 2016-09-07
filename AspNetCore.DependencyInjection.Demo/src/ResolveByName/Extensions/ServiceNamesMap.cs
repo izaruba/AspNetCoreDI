@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace ResolveByName.Extensions
 {
@@ -46,7 +47,7 @@ namespace ResolveByName.Extensions
         {
             var service = serviceType;
 
-            if (service.IsGenericType)
+            if (service.GetTypeInfo().IsGenericType)
             {
                 return ResolveGeneric(serviceProvider, serviceType, name);
             }

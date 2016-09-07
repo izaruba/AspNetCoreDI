@@ -1,7 +1,6 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using ResolveAllServices.Services;
 
 namespace ResolveAllServices.Controllers
@@ -10,10 +9,8 @@ namespace ResolveAllServices.Controllers
     {
         private readonly IService service;
 
-        public HomeController(IServiceProvider iocContainer)
+        public HomeController(IEnumerable<IService> services)
         {
-            var services = iocContainer.GetServices<IService>();
-
             this.service = services.FirstOrDefault(svc => svc.Name == "cloud");
         }
         public IActionResult Index()

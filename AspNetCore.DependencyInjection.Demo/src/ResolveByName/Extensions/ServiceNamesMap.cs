@@ -7,22 +7,22 @@ namespace ResolveByName.Extensions
     internal class ServiceNamesMap
     {
         /* Key = Service type, value = services names and implementation types */
-        private static readonly Dictionary<Type, Dictionary<string, Type>> ServiceNameMap =
+        private readonly Dictionary<Type, Dictionary<string, Type>> serviceNameMap =
             new Dictionary<Type, Dictionary<string, Type>>();
 
-        public static int Count => ServiceNameMap.Count;
+        public int Count => this.serviceNameMap.Count;
 
-        public static void RegisterType<TService, TImplementation>(string name)
+        public void RegisterType<TService, TImplementation>(string name)
             where TImplementation : TService
         {
-            RegisterType(typeof(TService), typeof(TImplementation), name);
+            this.RegisterType(typeof(TService), typeof(TImplementation), name);
         }
 
-        public static void RegisterType(Type service, Type implementation, string name)
+        public void RegisterType(Type service, Type implementation, string name)
         {
-            if (ServiceNameMap.ContainsKey(service))
+            if (this.serviceNameMap.ContainsKey(service))
             {
-                var serviceNames = ServiceNameMap[service];
+                var serviceNames = this.serviceNameMap[service];
 
                 if (serviceNames.ContainsKey(name))
                 {
@@ -36,24 +36,24 @@ namespace ResolveByName.Extensions
             }
             else
             {
-                ServiceNameMap.Add(service, new Dictionary<string, Type>
+                this.serviceNameMap.Add(service, new Dictionary<string, Type>
                 {
                     [name] = implementation
                 });
             }
         }
 
-        public static object Resolve(IServiceProvider serviceProvider, Type serviceType, string name)
+        public object Resolve(IServiceProvider serviceProvider, Type serviceType, string name)
         {
             var service = serviceType;
 
             if (service.GetTypeInfo().IsGenericType)
             {
-                return ResolveGeneric(serviceProvider, serviceType, name);
+                return this.ResolveGeneric(serviceProvider, serviceType, name);
             }
 
-            var serviceExists = ServiceNameMap.ContainsKey(service);
-            var nameExists = serviceExists && ServiceNameMap[service].ContainsKey(name);
+            var serviceExists = this.serviceNameMap.ContainsKey(service);
+            var nameExists = serviceExists && this.serviceNameMap[service].ContainsKey(name);
 
             /* Return `null` if there is no mapping for either service type or requested name */
             if (!(serviceExists && nameExists))
@@ -61,21 +61,21 @@ namespace ResolveByName.Extensions
                 return null;
             }
 
-            return serviceProvider.GetService(ServiceNameMap[service][name]);
+            return serviceProvider.GetService(this.serviceNameMap[service][name]);
         }
 
-        public static TService Resolve<TService>(IServiceProvider serviceProvider, string name)
+        public TService Resolve<TService>(IServiceProvider serviceProvider, string name)
             where TService : class
         {
-            return Resolve(serviceProvider, typeof(TService), name) as TService;
+            return this.Resolve(serviceProvider, typeof(TService), name) as TService;
         }
 
-        private static object ResolveGeneric(IServiceProvider serviceProvider, Type serviceType, string name)
+        private object ResolveGeneric(IServiceProvider serviceProvider, Type serviceType, string name)
         {
             var genericType = serviceType.GetGenericTypeDefinition();
 
-            var serviceExists = ServiceNameMap.ContainsKey(genericType);
-            var nameExists = serviceExists && ServiceNameMap[genericType].ContainsKey(name);
+            var serviceExists = this.serviceNameMap.ContainsKey(genericType);
+            var nameExists = serviceExists && this.serviceNameMap[genericType].ContainsKey(name);
 
             /* Return `null` if there is no mapping for either service type or requested name */
             if (!(serviceExists && nameExists))
@@ -83,7 +83,7 @@ namespace ResolveByName.Extensions
                 return null;
             }
 
-            var implementation = ServiceNameMap[genericType][name].MakeGenericType(serviceType.GenericTypeArguments);
+            var implementation = this.serviceNameMap[genericType][name].MakeGenericType(serviceType.GenericTypeArguments);
 
             return serviceProvider.GetService(implementation);
         }

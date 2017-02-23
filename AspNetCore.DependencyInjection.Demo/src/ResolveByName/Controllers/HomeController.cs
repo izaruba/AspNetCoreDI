@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 using ResolveByName.Extensions;
-using FromServicesAttribute = ResolveByName.ModelBinding.FromServicesAttribute;
+using ResolveByName.MultipleContainers.Attributes;
 using Services;
 
 namespace ResolveByName.Controllers
@@ -34,12 +34,12 @@ namespace ResolveByName.Controllers
             return this.View(model: service.GetType().Name);
         }
 
-        public IActionResult LocalWithAttribute([FromServices("local")] IService service)
+        public IActionResult LocalWithAttribute([FromNamedServices("local")] IService service)
         {
             return this.View("Local", model: service.GetType().Name);
         }
 
-        public IActionResult CloudWithAttribute([FromServices("cloud")] IService service)
+        public IActionResult CloudWithAttribute([FromNamedServices("cloud")] IService service)
         {
             return this.View("Cloud", model: service.GetType().Name);
         }

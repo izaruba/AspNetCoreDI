@@ -2,19 +2,17 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace ResolveByName.ModelBinding
+namespace ResolveByName.MultipleContainers.Attributes
 {
     [AttributeUsage(AttributeTargets.Parameter)]
-    public class FromServicesAttribute : ModelBinderAttribute
+    public class FromNamedServicesAttribute : ModelBinderAttribute
     {
-        public FromServicesAttribute(string serviceName)
+        public FromNamedServicesAttribute(string serviceName)
         {
             this.ServiceName = serviceName;
             this.BinderType = typeof(NamedServicesModelBinder);
         }
-
         public string ServiceName { get; set; }
-
         public override BindingSource BindingSource => BindingSource.Services;
     }
 }
